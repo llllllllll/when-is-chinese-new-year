@@ -1,0 +1,281 @@
+\documentclass[table]{beamer}
+
+% Use metropolis theme
+\usepackage[progressbar=foot]{theme/beamerthememetropolis}
+\usepackage{amsmath}
+\usepackage{marvosym}
+\usepackage{xcolor}
+\usepackage{minted}
+\usepackage{pdfpages}
+\usepackage[nodayofweek,level]{datetime}
+\usepackage{hyperref}
+
+\title{When is Chinese New Year?}
+
+\date{October 23, 2019}
+\author{Joe Jevnik}
+\institute{Boston Python}
+
+\begin{document}
+\maketitle
+
+\section{Calendar Basics}
+
+\begin{frame}{New Moon}
+  \begin{itemize}
+  \item<+-> \textit{ecliptic}: apparent path that the Sun takes as it
+    revolves around the Earth
+  \item<+-> \textit{new moon}: when the moon is completely dark
+  \item<+-> \textit{new moon}: when the \textit{ecliptic longitude} of the Moon is equal to
+    the \textit{ecliptic longitude} of the Sun
+  \item<+-> when the Moon is at the same angle in the sky as the Sun but
+    different heights
+  \item<+-> if height is also equal, then it is an eclipse, thus the name
+    \textit{ecliptic}
+  \item<+-> \textit{lunation} or \textit{synodic month}: time between new moon
+    and the next new moon.
+  \item<+-> not totally regular due to many factors
+  \item<+-> \textit{mean lunation} = 29.531 days
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Year}
+  \begin{itemize}
+  \item<+-> \textit{tropical year}: winter solstice to winter solstice
+  \item<+-> \textit{tropical year}: the amount of time it takes for the Sun to
+    return to the same position in the sky
+  \item<+-> tropical year = 365.242374 days
+  \item<+-> 12 mean lunar months = 354.36707 days
+  \item<+-> about 11 days short
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Year (cont.)}
+  If we define a year in terms of the...
+
+  \begin{columns}[T]
+    \column{0.35\textwidth}
+    \begin{block}{Moon}
+      \begin{itemize}
+      \item easy to observe
+      \item easy to measure progress
+      \end{itemize}
+    \end{block}
+
+    \column{0.5\textwidth}
+    \begin{block}{Sun}
+      \begin{itemize}
+      \item regular seasons
+      \item easier to manage agricultural stuff
+      \end{itemize}
+    \end{block}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Lunisolar Calendar}
+  \begin{itemize}
+  \item<+-> define a month as new moon to new moon
+  \item<+-> add some correction factor to the months to stay aligned to the seasons
+  \item<+-> similar to Hebrew calendar
+  \end{itemize}
+\end{frame}
+
+\section{Chinese Calendar}
+
+\begin{frame}{Solar Terms}
+  \begin{itemize}
+  \item<+-> 24 divisions of the Sun's ecliptic longitude into 24 equal parts
+  \item<+-> even periods called \textit{major solar terms}
+  \item<+-> odd periods called \textit{minor solar terms}
+  \item<+-> both equinoxes and both solstices occur on major solar terms
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Rule 1}
+  \begin{itemize}
+  \item<+-> calculations are based on 120° East
+  \item<+-> determines solar noon
+  \item<+-> tzinfo Asia/Shanghai
+  \item<+-> changed from 116°25' East in 1928, which is about a 14 minute shift
+  \item<+-> need to account for this when computing holiday dates in the past
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Rule 2}
+  \begin{itemize}
+  \item<+-> days start at midnight
+  \item<+-> days are 24 hours long
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Rule 3}
+  \begin{itemize}
+  \item<+-> the day on which a new moon occurs is the first of the new month
+  \item<+-> if the conjunction is at 23:59:59, that day is still the first of the
+    month
+  \item<+-> months are either 30 or 29 days (except for intercalary months)
+  \item<+-> the same month can be different lengths in different years
+  \item<+-> uses computations of  time instead of observations as of
+    around 621 BCE
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Chinese Year}
+  \begin{itemize}
+  \item<+-> two kinds of years: \textit{solar year} and \textit{lunar year}
+  \item<+-> \textit{solar year}: winter solstice to winter solstice
+  \item<+-> contains 12 lunar months and about 11 days
+  \item<+-> \textit{lunar year}: Chinese new year to Chinese new year
+  \item<+-> contains either 12 or 13 lunar months
+  \item<+-> the extra lunar month is an intercalary month to keep the seasons
+    aligned
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Rule 4}
+  \begin{itemize}
+  \item<+-> the winter solstice falls in month 11
+  \item<+-> a solar year is a leap solar year if there are 12 complete lunar
+    months between the two 11th months at the beginning and end of the solar
+    year
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Rule 5}
+  \begin{itemize}
+  \item<+-> in a leap solar year, the first month that does not contain a minor
+    solar term is the leap month
+  \item<+-> the leap month extends the duration of the previous month
+  \item<+-> any month can be a leap month
+  \item<+-> this rule only applies to leap solar years, so rule 4 takes precedence
+  \item<+-> this leads to the Y2033 issue
+  \item<+-> possible to have a month with no minor solar term that is
+    \textit{not} a leap month
+  \item<+-> called a fake leap month
+  \end{itemize}
+\end{frame}
+
+\section{Code}
+
+\begin{frame}{NOVAS}
+  \begin{itemize}
+  \item<+-> Naval Observatory Vector Astrometry Software
+  \item<+-> provides calculations for the positions of local objects in
+    different coordinate systems
+  \item<+-> paid for by taxes, cannot be copyrighted, it is simply free
+  \item<+-> requires an \textit{ephemeris}
+  \item<+-> can use the JPL ephemerides files
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Terrestrial Time and Julian Date}
+  \begin{itemize}
+  \item<+-> \textit{Julian Day} is exactly 86400 atomic
+    seconds
+  \item<+-> drifts from actual days partly because the earth is slowing down
+  \item<+-> \textit{Julian Date} is the number of julian days since the
+    \textit{Julian Period} as a real number
+  \item<+-> \textit{Julian Days} start at noon
+  \item<+-> \textit{Terrestrial Time} is an ideal measure of time that doesn't
+    account for irregularities in the rotation of the earth.
+  \item<+-> \textit{Julian Date TT} is the number of julian days since the
+    Julian Period
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{UTC to JD TT Corrections}
+  \begin{minted}{python}
+# table from US Naval Observatory
+utc_to_jd_tt.corrections = np.array(
+    [
+        (T(1700, 1, 1), 32.184),
+        (T(1973, 2, 1), 43.4724),
+        (T(1973, 3, 1), 43.5648),
+        # ...
+        (T(2025, 9, 1), 72.0),
+        (T(2026, 1, 1), 72.0),
+    ],
+    dtype=[('time', 'M8[D]'), ('julian_days', 'f8')],
+)
+# seconds in a julian day
+utc_to_jd_tt.corrections['julian_days'] /= 60 * 60 * 24
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{UTC to JD TT}
+  \begin{minted}{python}
+def utc_to_jd_tt(ts):
+    corrections = utc_to_jd_tt.corrections
+    jd_utc = (
+       ts.astype('M8[s]').view('i8') / 86400 + 2440587.5
+    )
+    correction_ix = np.searchsorted(
+        corrections['time'],
+        ts,
+        side='right',
+    )
+    correction_ix[correction_ix == len(corrections)] -= 1
+    return (
+       jd_utc + corrections['julian_days'][correction_ix]
+    )
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Getting New Moons}
+  \begin{minted}{python}
+def compute_ecliptic_longitude(ob, minutes):
+    longitude_degrees = np.array([
+        novas.equ2ecl(
+            jd_tt,
+            # right ascension and declination
+            *novas.app_planet(jd_tt, ob)[:2],
+            # true equator and equinox of date
+            coord_sys=1,
+        )[0]
+        for jd_tt in utc_to_jd_tt(minutes)
+    ])
+    return np.deg2rad(longitude_degrees)
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Getting New Moons (Cont.)}
+  \begin{minted}{python}
+moon = novas.make_object(0, 11, 'Moon', None)
+lunar_el = compute_ecliptic_longitude(moon, minutes)
+
+sun = novas.make_object(0, 10, 'Sun', None)
+solar_el = compute_ecliptic_longitude(sun, minutes)
+  \end{minted}
+\end{frame}
+
+\begin{frame}{When is Chinese New Year?}
+  \begin{itemize}
+  \item[] \formatdate{25}{01}{2020}
+  \item[] \formatdate{12}{02}{2021}
+  \item[] \formatdate{01}{02}{2022}
+  \item[] \formatdate{22}{01}{2023}
+  \item[] \formatdate{10}{02}{2024}
+  \item[] \formatdate{29}{01}{2025}
+  \item[] \formatdate{17}{02}{2026}
+  \item[] \formatdate{06}{02}{2027}
+  \item[] \formatdate{26}{01}{2028}
+  \item[] \formatdate{13}{02}{2029}
+  \item[] \formatdate{03}{02}{2030}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Thanks}
+  \begin{block}{Implementation}
+    \url{https://github.com/quantopian/trading_calendars/blob/master/etc/lunisolar}
+  \end{block}
+  \begin{block}{References}
+    \begin{itemize}
+    \item Aslaksen, Helmer. "The Mathematics of the Chinese Calendar"
+    \item NOVAS
+    \item Jean H. Meeus. 1991. Astronomical Algorithms. Willmann-Bell,
+      Incorporated.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\end{document}
